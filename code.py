@@ -1,6 +1,4 @@
-# importing the libraries
-import pandas as pd # This Library used for data manipulation and analysis
-import numpy as np # it is used for mathematical operations
+
 
 def get_data(name):
   """Read the data from excel file. Drop an empty column called 'Unnamed: 4'. Remove all non-countries starting from index 217.
