@@ -1,17 +1,18 @@
-import pandas as pd
-import numpy as np
+# importing the libraries
+import pandas as pd # This Library used for data manipulation and analysis
+import numpy as np # it is used for mathematical operations
 
 def get_data(name):
   """Read the data from excel file. Drop an empty column called 'Unnamed: 4'. Remove all non-countries starting from index 217.
   Returns the original and modified data frames"""
-  dat_act = pd.read_excel(name)
-  dat_trf = dat_act.drop('Unnamed: 4', axis=1)
-  dat_trf = pd.DataFrame.transpose(dat_trf.iloc[:217, :])
+  dat_act = pd.read_excel(name) # reading file in to excel
+  dat_trf = dat_act.drop('Unnamed: 4', axis=1) # dropping unwanted columns
+  dat_trf = pd.DataFrame.transpose(dat_trf.iloc[:217, :]) # transpose data
   return dat_act, dat_trf
 
-dat_act, dat_trf = get_data('/content/drive/MyDrive/Data_Extract_FromWorld Development Indicators.xlsx')
+dat_act, dat_trf = get_data('D:\Ramya\ADS1 Last Assign/Data_Extract_FromWorld Development Indicators.xlsx')
 
-df = pd.DataFrame.transpose(dat_trf)
+df = pd.DataFrame.transpose(dat_trf) # Dataframe transpose
 df.head()
 
 df.shape
@@ -32,9 +33,12 @@ df.info()
 import re
 
 def missing_dat(val):
-  """Replace all dots with zero to indicate they are missing. All non-dots are made integers. Modified item is returned"""
+  """
+      Replace all dots with zero to indicate they are missing.
+      All non-dots are made integers. 
+      Modified item is returned
+  """
   try:
-    # val = val[:-2]
     s = int(val)
   except:
     s = re.sub(r".*", '0', val)
@@ -59,7 +63,10 @@ df.head()
 df.info()
 
 def norm(array):
-  """ Returns array normalised to [0,1]. Array can be a numpy array or a column of a dataframe"""
+  """ 
+      Returns array normalised to [0,1]. Array can be a numpy
+      array or a column of a dataframe
+  """
   min_val = np.min(array)
   max_val = np.max(array)
   scaled = (array-min_val) / (max_val-min_val)
@@ -67,9 +74,11 @@ def norm(array):
 
 def norm_df(df, first=0, last=None):
   """
-  Returns all columns of the dataframe normalised to [0,1] with the exception of the first (containing the names)
-  Calls function norm to do the normalisation of one column, but doing all in one function is also fine.
-  First, last: columns from first to last (including) are normalised. Defaulted to all. None is the empty entry. The default corresponds
+      Returns all columns of the dataframe normalised to [0,1] with the exception of 
+      the first (containing the names) Calls function norm to do the normalisation of
+      one column, but doing all in one function is also fine. First, last: columns from
+      first to last (including) are normalised. Defaulted to all. None is the empty entry. 
+      The default corresponds
   """
   # iterate over all numerical columns
   for col in df.columns[first:last]: # excluding the first column
@@ -82,6 +91,8 @@ df_fit = df[["2020", "2021"]].copy()
 df_fit = norm_df(df_fit)
 df_fit.describe()
 
+
+# importing sklearn libraries
 import sklearn.cluster as cluster
 import sklearn.metrics as skmet
 
@@ -93,9 +104,10 @@ for ic in range(2, 10):
   labels = kmeans.labels_
   print (ic, skmet.silhouette_score(df_fit, labels))
 
-"""Selecting 2 clusters as the optimal number (highest silhouette score)
+"""
+    Selecting 2 clusters as the optimal number (highest silhouette score)
 
-Plot on normalized values
+    Plot on normalized values
 """
 
 import matplotlib.pyplot as plt
@@ -120,7 +132,10 @@ plt.ylabel("2021")
 plt.title("2 clusters on normalized values")
 plt.show()
 
-"""Plot on original values"""
+""" 
+    Plot on original values
+    
+"""
 
 cols = df[["2020", "2021"]].copy()
 cols['clust_num'] = kmeans.labels_
@@ -150,14 +165,22 @@ cols['clust_num'].value_counts()
 
 cols[cols['clust_num'] == 1]
 
-"""Curve fitting"""
+""" 
+    Curve fitting
+    
+"""
 
 def exp_growth(t, scale, growth):
-  """ Computes exponential function with scale and growth as free parameters"""
+  """ 
+      Computes exponential function with scale and growth as free parameters
+  """
   f = scale * np.exp(growth * (t-2000))
   return f
 
-"""Picking China from cluster 1 and Andorra from cluster 0"""
+"""
+    Picking China from cluster 1 and Andorra from cluster 0
+    
+"""
 
 chn = df[df['Country Name'] == 'China']
 adr = df[df['Country Name'] == 'Andorra']
@@ -181,9 +204,11 @@ adr['Date'] = temp
 
 import scipy.optimize as opt
 
-"""China fitting
+"""
+    China fitting
 
-First fit attempt of the exponential function with defaul initial parameters
+    First fit attempt of the exponential function with defaul initial parameters
+    
 """
 
 # fit exponential growth
@@ -232,8 +257,9 @@ plt.title("Final fit exponential growth")
 plt.show()
 print()
 
-"""Estimate lower and upper limits of the
-confidence range
+"""
+    Estimate lower and upper limits of the
+    confidence range
 """
 
 def err_ranges(x, func, param, sigma):
@@ -325,8 +351,7 @@ plt.title("Improved start value")
 plt.show()
 
 # fit exponential growth
-popt_adr, covar_adr = opt.curve_fit(exp_growth, adr["Date"],
-adr["GDP"], p0=[2e9, 0.04])
+popt_adr, covar_adr = opt.curve_fit(exp_growth, adr["Date"], adr["GDP"], p0=[2e9, 0.04])
 # much better
 print("Fit parameter", popt_adr)
 adr["gdp_exp"] = exp_growth(adr["Date"], *popt_adr)
