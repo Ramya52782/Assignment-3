@@ -379,4 +379,10 @@ plt.xlabel("year")
 plt.ylabel("GDP")
 plt.show()
 
-
+print("Forecasted GDP")
+low, up = err_ranges(2030, exp_growth, popt_adr, sigma_adr)
+print("2030 between ", low, "and", up)
+low, up = err_ranges(2040, exp_growth, popt_adr, sigma_adr)
+print("2040 between ", low, "and", up)
+low, up = err_ranges(2050, exp_growth, popt_adr, sigma_adr)
+print("2050 between ", low, "and", up)
